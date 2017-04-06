@@ -1,11 +1,12 @@
 package com.dtp;
 
+import com.dtp.columns.Column;
+import com.dtp.columns.LongColumn;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.annotation.processing.Filer;
@@ -17,28 +18,29 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
  * Created by ner on 4/5/17.
  */
 
-public class FileGenerator {
+class FileGenerator {
 
     private Filer filer;
 
-    public FileGenerator(Filer filer) {
+    FileGenerator(Filer filer) {
         this.filer = filer;
     }
 
-    public void generateFiles(List<TableData> tablesData) {
+    void generateFiles(List<TableData> tablesData) {
         for (TableData tableData : tablesData) {
             String packageName = "com.dtp.chamber";
 
             TypeSpec.Builder builder = classBuilder(tableData.tableName + Const.MANAGER_CLASS_SUFFIX)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
+            builder.addField(generateTableNameSpec(tableData.tableName));
+            builder.addField(generateChamberIdSpec(tableData.tableName));
+
             for (ColumnData columnData : tableData.columns) {
-                if (columnData.type == ColumnType.STRING) {
-                    builder.addField(getFieldSpec(StringColumn.class, columnData));
-                } else if (columnData.type == ColumnType.INT) {
-                    builder.addField(getFieldSpec(IntColumn.class, columnData));
-                }
+                builder.addField(generateFieldSpec(tableData.tableName, columnData));
             }
+
+            builder.addField(generateColumnsArraySpec(tableData.columns));
 
             TypeSpec typeSpec = builder.build();
 
@@ -52,26 +54,53 @@ public class FileGenerator {
         }
     }
 
-    private FieldSpec getFieldSpec(Type type, ColumnData columnData) {
-        String formattedName = "";
+    private FieldSpec generateTableNameSpec(String tableName) {
+        return FieldSpec.builder(String.class, "TABLE_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+                .initializer("$S", tableName)
+                .build();
+    }
 
-        String[] splitName = columnData.columnName.split("(?=\\p{Upper})");
+    private FieldSpec generateChamberIdSpec(String tableName) {
+        ColumnData columnData = new ColumnData.Builder("CHAMBER_ID", LongColumn.class)
+                .setColumnName("ChamberId")
+                .setNotNull(true)
+                .setUnique(true)
+                .build();
 
-        for (int i = 0; i < splitName.length; i++) {
-            formattedName += splitName[i].toUpperCase();
+        return generateFieldSpec(tableName, columnData);
+    }
 
-            if (i < splitName.length -1)
-                formattedName += "_";
-        }
+    private FieldSpec generateFieldSpec(String tableName, ColumnData columnData) {
+        FieldSpec.Builder builder = FieldSpec.builder(columnData.type, columnData.variableName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
-        FieldSpec.Builder builder = FieldSpec.builder(type, formattedName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
-
-        if (type == StringColumn.class) {
-            builder.initializer("$N$S$N", "new StringColumn(", columnData.columnName, ")");
-        } else if (type == IntColumn.class) {
-            builder.initializer("$N$S$N", "new IntColumn(", columnData.columnName, ")");
-        }
+        builder.initializer("$N", buildColumnInitializer(tableName, columnData));
 
         return builder.build();
+    }
+
+    private String buildColumnInitializer(String tableName, ColumnData columnData) {
+        return String.format("new %s(\"%s%s\", %b, %b)", ((Class) columnData.type).getSimpleName(), tableName, columnData.columnName, columnData.notNull, columnData.unique);
+    }
+
+    private FieldSpec generateColumnsArraySpec(List<ColumnData> columns) {
+        FieldSpec.Builder builder = FieldSpec.builder(Column[].class, "COLUMNS", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+
+        StringBuilder columnsBuilder = new StringBuilder("new Column[] {");
+
+        columnsBuilder.append("CHAMBER_ID");
+
+        for (int i = 0; i < columns.size(); i++) {
+            if (i == 0)
+                columnsBuilder.append(", ");
+
+            columnsBuilder.append(columns.get(i).variableName);
+
+            if (i < columns.size() -1)
+                columnsBuilder.append(", ");
+            else
+                columnsBuilder.append("}");
+        }
+
+        return builder.initializer("$N", columnsBuilder.toString()).build();
     }
 }

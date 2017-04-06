@@ -1,4 +1,4 @@
-package com.dtp;
+package com.dtp.annotations;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
@@ -9,5 +9,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.FIELD)
 public @interface ChamberColumn {
-    String columnName()  default "unassigned";
+    String name() default "undefined";
+    boolean unique() default  false;
+    boolean notNull() default false;
 }

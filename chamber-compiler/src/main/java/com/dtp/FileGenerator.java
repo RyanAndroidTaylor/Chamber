@@ -1,6 +1,5 @@
 package com.dtp;
 
-import com.dtp.annotations.ChamberType;
 import com.dtp.columns.Column;
 import com.dtp.columns.LongColumn;
 import com.squareup.javapoet.FieldSpec;
@@ -44,8 +43,7 @@ class FileGenerator {
 
             builder.addField(generateColumnsArraySpec(tableData.columns));
 
-            if (tableData.chamberType == ChamberType.ANDROID)
-                builder.addMethod(generateDataStoreMethodSpec(tableData));
+            builder.addMethod(generateDataStoreMethodSpec(tableData));
 
 //            builder.addType(BuilderGenerator.generateBuilder(tableData));
 
@@ -105,7 +103,7 @@ class FileGenerator {
 
             columnsBuilder.append(columns.get(i).variableName);
 
-            if (i < columns.size() -1)
+            if (i < columns.size() - 1)
                 columnsBuilder.append(", ");
             else
                 columnsBuilder.append("}");
@@ -116,7 +114,7 @@ class FileGenerator {
 
     private MethodSpec generateDataStoreMethodSpec(TableData tableData) {
         String className = DataStoreIn.class.getSimpleName();
-        String variableName= Util.toLowerFistLetter(className);
+        String variableName = Util.toLowerFistLetter(className);
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("getDataStoreFor")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)

@@ -1,6 +1,5 @@
 package com.dtp;
 
-import com.dtp.annotations.ChamberType;
 import com.squareup.javapoet.ClassName;
 
 import java.util.List;

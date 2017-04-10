@@ -2,7 +2,6 @@ package com.dtp;
 
 import com.dtp.annotations.ChamberColumn;
 import com.dtp.annotations.ChamberTable;
-import com.dtp.annotations.ChamberType;
 import com.dtp.columns.BooleanColumn;
 import com.dtp.columns.DoubleColumn;
 import com.dtp.columns.FloatColumn;

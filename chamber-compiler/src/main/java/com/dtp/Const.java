@@ -5,5 +5,6 @@ package com.dtp;
  */
 
 public class Const {
-    public static final String MANAGER_CLASS_SUFFIX = "Manager";
+    public static final String TABLE_CLASS_SUFFIX = "Table";
+    public static final String MODEL_CLASS_SUFFIX = "Model";
 }

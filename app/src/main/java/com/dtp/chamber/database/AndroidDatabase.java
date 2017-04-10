@@ -12,16 +12,16 @@ import static android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL;
  * Created by ner on 4/6/17.
  */
 
-public class AndroidDatabase implements Database {
+class AndroidDatabase implements Database {
 
     private SQLiteDatabase database;
     private int conflictAlgorithm;
 
-    public AndroidDatabase(SQLiteDatabase database) {
+    AndroidDatabase(SQLiteDatabase database) {
         this(database, CONFLICT_FAIL);
     }
 
-    public AndroidDatabase(SQLiteDatabase database, int conflictAlgorithm) {
+    AndroidDatabase(SQLiteDatabase database, int conflictAlgorithm) {
         this.database = database;
         this.conflictAlgorithm = conflictAlgorithm;
     }
@@ -30,21 +30,21 @@ public class AndroidDatabase implements Database {
     public Long insert(DataTable dataTable) {
         AndroidDataTable androidDataTable = safeCastToAndroidDataTable(dataTable);
 
-        return database.insertWithOnConflict(androidDataTable.tableName(), null, androidDataTable.getContentValues(), conflictAlgorithm);
+        return database.insertWithOnConflict(androidDataTable.getTableName(), null, androidDataTable.getContentValues(), conflictAlgorithm);
     }
 
     @Override
     public int update(DataTable dataTable) {
         AndroidDataTable androidDataTable = safeCastToAndroidDataTable(dataTable);
 
-        return database.update(androidDataTable.tableName(), androidDataTable.getContentValues(), androidDataTable.tableName() + Column.CHAMBER_ID + "=?", new String[] { androidDataTable.chamberId().toString() });
+        return database.update(androidDataTable.getTableName(), androidDataTable.getContentValues(), androidDataTable.getTableName() + Column.CHAMBER_ID + "=?", new String[] { androidDataTable.getChamberId().toString() });
     }
 
     @Override
     public int delete(DataTable dataTable) {
         AndroidDataTable androidDataTable = safeCastToAndroidDataTable(dataTable);
 
-        return database.delete(androidDataTable.tableName(), androidDataTable.tableName() + Column.CHAMBER_ID + "=?", new String[] { androidDataTable.chamberId().toString() });
+        return database.delete(androidDataTable.getTableName(), androidDataTable.getTableName() + Column.CHAMBER_ID + "=?", new String[] { androidDataTable.getChamberId().toString() });
     }
 
     private AndroidDataTable safeCastToAndroidDataTable(DataTable dataTable) {

@@ -1,9 +1,13 @@
 package com.dtp;
 
+import com.dtp.annotations.ChamberType;
 import com.dtp.columns.Column;
 import com.dtp.columns.LongColumn;
+import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
@@ -19,6 +23,7 @@ import static com.squareup.javapoet.TypeSpec.classBuilder;
  */
 
 class FileGenerator {
+    private static final String PACKAGE_NAME = "com.dtp.chamber";
 
     private Filer filer;
 
@@ -28,9 +33,7 @@ class FileGenerator {
 
     void generateFiles(List<TableData> tablesData) {
         for (TableData tableData : tablesData) {
-            String packageName = "com.dtp.chamber";
-
-            TypeSpec.Builder builder = classBuilder(tableData.tableName + Const.MANAGER_CLASS_SUFFIX)
+            TypeSpec.Builder builder = classBuilder(tableData.tableName + Const.TABLE_CLASS_SUFFIX)
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             builder.addField(generateTableNameSpec(tableData.tableName));
@@ -42,9 +45,15 @@ class FileGenerator {
 
             builder.addField(generateColumnsArraySpec(tableData.columns));
 
+            if (tableData.chamberType == ChamberType.ANDROID)
+                builder.addMethod(generateContentValuesMethodSpec(tableData));
+
             TypeSpec typeSpec = builder.build();
 
-            JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+            JavaFile javaFile = JavaFile.builder(PACKAGE_NAME, typeSpec)
+                    .indent("    ")
+                    .build();
+
 
             try {
                 javaFile.writeTo(filer);
@@ -55,14 +64,14 @@ class FileGenerator {
     }
 
     private FieldSpec generateTableNameSpec(String tableName) {
-        return FieldSpec.builder(String.class, "TABLE_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+        return FieldSpec.builder(String.class, "NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$S", tableName)
                 .build();
     }
 
     private FieldSpec generateChamberIdSpec(String tableName) {
-        ColumnData columnData = new ColumnData.Builder("CHAMBER_ID", LongColumn.class)
-                .setColumnName("ChamberId")
+        ColumnData columnData = new ColumnData.Builder("chamberId", "CHAMBER_ID", LongColumn.class)
+                .setColumnName(Column.CHAMBER_ID)
                 .setNotNull(true)
                 .setUnique(true)
                 .build();
@@ -102,5 +111,24 @@ class FileGenerator {
         }
 
         return builder.initializer("$N", columnsBuilder.toString()).build();
+    }
+
+    private MethodSpec generateContentValuesMethodSpec(TableData tableData) {
+        ClassName className = ClassName.get("android.content", "ContentValues");
+        String variableName = Util.toLowerFistLetter(className.simpleName());
+
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("getContentValuesFor")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(className)
+                .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
+                .addStatement("$T $N = new $T()", className, variableName, className);
+
+        for (ColumnData columnData : tableData.columns) {
+            builder.addStatement("$N.put($N.name, person.get$N())", variableName, columnData.variableName, Util.toUpperFirstLetter(columnData.variableElementName));
+        }
+
+        builder.addStatement("return $N", variableName);
+
+        return builder.build();
     }
 }

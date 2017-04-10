@@ -6,15 +6,17 @@ import java.lang.reflect.Type;
  * Created by ner on 4/5/17.
  */
 
-public class ColumnData {
+class ColumnData {
 
-    public final String variableName;
-    public final Type type;
-    public final String columnName;
-    public final boolean notNull;
-    public final boolean unique;
+    final String variableElementName;
+    final String variableName;
+    final Type type;
+    final String columnName;
+    final boolean notNull;
+    final boolean unique;
 
-    private ColumnData(String variableName, Type type, String columnName, boolean notNull, boolean unique) {
+    private ColumnData(String variableElementName, String variableName, Type type, String columnName, boolean notNull, boolean unique) {
+        this.variableElementName = variableElementName;
         this.variableName = variableName;
         this.type = type;
         this.columnName = columnName;
@@ -24,37 +26,39 @@ public class ColumnData {
 
     static class Builder {
 
+        private String variableElementName;
         private String variableName;
         private Type type;
         private String columnName;
         private boolean notNull;
         private boolean unique;
 
-        public Builder(String variableName, Type type)  {
+        Builder(String variableElementName, String variableName, Type type)  {
+            this.variableElementName = variableElementName;
             this.variableName = variableName;
             this.type = type;
         }
 
-        public Builder setColumnName(String columnName) {
+        Builder setColumnName(String columnName) {
             this.columnName = columnName;
 
             return this;
         }
 
-        public Builder setNotNull(boolean notNull) {
+        Builder setNotNull(boolean notNull) {
             this.notNull = notNull;
 
             return this;
         }
 
-        public Builder setUnique(boolean unique) {
+        Builder setUnique(boolean unique) {
             this.unique = unique;
 
             return this;
         }
 
-        public ColumnData build() {
-            return new ColumnData(variableName, type, columnName, notNull, unique);
+        ColumnData build() {
+            return new ColumnData(variableElementName, variableName, type, columnName, notNull, unique);
         }
     }
 }

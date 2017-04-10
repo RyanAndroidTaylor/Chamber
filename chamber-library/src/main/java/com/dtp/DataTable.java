@@ -6,6 +6,6 @@ package com.dtp;
 
 public interface DataTable {
 
-    String tableName();
-    Long chamberId();
+    String getTableName();
+    Long getChamberId();
 }

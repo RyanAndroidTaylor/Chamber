@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.dtp.TableBuilder;
-import com.dtp.chamber.PersonManager;
+import com.dtp.chamber.PersonTable;
 
 /**
  * Created by ner on 4/6/17.
@@ -21,7 +21,7 @@ public class DatabaseOpenHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         TableBuilder tableBuilder = new TableBuilder();
 
-        db.execSQL(tableBuilder.generateCreateString(PersonManager.TABLE_NAME, PersonManager.COLUMNS));
+        db.execSQL(tableBuilder.generateCreateString(PersonTable.NAME, PersonTable.COLUMNS));
     }
 
     @Override

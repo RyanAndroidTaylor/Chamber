@@ -43,7 +43,7 @@ class DataCollector {
             }
         }
 
-        return new TableData(tableName, columns);
+        return new TableData(tableName, typeElement.asType(), columns);
     }
 
     private ColumnData getColumnData(VariableElement variableElement) {
@@ -59,7 +59,7 @@ class DataCollector {
         if (columnName.equals("undefined"))
             columnName = variableName.substring(0, 1).toUpperCase() + variableName.substring(1);
 
-        return new ColumnData.Builder(formatAsStaticFinalName(variableName), type)
+        return new ColumnData.Builder(variableElement.getSimpleName().toString(), formatAsStaticFinalName(variableName), type)
                 .setColumnName(columnName)
                 .setNotNull(notNull)
                 .setUnique(unique)

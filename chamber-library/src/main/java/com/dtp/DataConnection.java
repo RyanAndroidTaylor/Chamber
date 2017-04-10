@@ -102,11 +102,11 @@ public class DataConnection {
         database.delete(dataTable);
     }
 
-    interface DoAndClose {
+    public interface DoAndClose {
         void doAndClose(DataConnection dataConnection);
     }
 
-    interface GetAndCloseBlock<T> {
+    public interface GetAndCloseBlock<T> {
         T getAndClose(DataConnection dataConnection);
     }
 }

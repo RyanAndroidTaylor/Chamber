@@ -3,7 +3,6 @@ package com.dtp;
 import com.dtp.annotations.ChamberType;
 import com.dtp.columns.Column;
 import com.dtp.columns.LongColumn;
-import com.squareup.javapoet.ClassName;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -46,7 +45,9 @@ class FileGenerator {
             builder.addField(generateColumnsArraySpec(tableData.columns));
 
             if (tableData.chamberType == ChamberType.ANDROID)
-                builder.addMethod(generateContentValuesMethodSpec(tableData));
+                builder.addMethod(generateDataStoreMethodSpec(tableData));
+
+//            builder.addType(BuilderGenerator.generateBuilder(tableData));
 
             TypeSpec typeSpec = builder.build();
 
@@ -71,12 +72,12 @@ class FileGenerator {
 
     private FieldSpec generateChamberIdSpec(String tableName) {
         ColumnData columnData = new ColumnData.Builder("chamberId", "CHAMBER_ID", LongColumn.class)
-                .setColumnName(Column.CHAMBER_ID)
+                .setColumnName(Column.Companion.getCHAMBER_ID())
                 .setNotNull(true)
                 .setUnique(true)
                 .build();
 
-        return generateFieldSpec(tableName, columnData);
+        return generateFieldSpec("", columnData);
     }
 
     private FieldSpec generateFieldSpec(String tableName, ColumnData columnData) {
@@ -113,18 +114,18 @@ class FileGenerator {
         return builder.initializer("$N", columnsBuilder.toString()).build();
     }
 
-    private MethodSpec generateContentValuesMethodSpec(TableData tableData) {
-        ClassName className = ClassName.get("android.content", "ContentValues");
-        String variableName = Util.toLowerFistLetter(className.simpleName());
+    private MethodSpec generateDataStoreMethodSpec(TableData tableData) {
+        String className = DataStoreIn.class.getSimpleName();
+        String variableName= Util.toLowerFistLetter(className);
 
-        MethodSpec.Builder builder = MethodSpec.methodBuilder("getContentValuesFor")
+        MethodSpec.Builder builder = MethodSpec.methodBuilder("getDataStoreFor")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(className)
+                .returns(DataStoreIn.class)
                 .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
-                .addStatement("$T $N = new $T()", className, variableName, className);
+                .addStatement("$N $N = $T.createDataStore()", className, variableName, TypeName.get(DataConnection.Companion.class));
 
         for (ColumnData columnData : tableData.columns) {
-            builder.addStatement("$N.put($N.name, person.get$N())", variableName, columnData.variableName, Util.toUpperFirstLetter(columnData.variableElementName));
+            builder.addStatement("$N.put($N, person.get$N())", variableName, columnData.variableName, Util.toUpperFirstLetter(columnData.variableElementName));
         }
 
         builder.addStatement("return $N", variableName);

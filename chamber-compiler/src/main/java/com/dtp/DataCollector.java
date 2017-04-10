@@ -1,6 +1,8 @@
 package com.dtp;
 
 import com.dtp.annotations.ChamberColumn;
+import com.dtp.annotations.ChamberTable;
+import com.dtp.annotations.ChamberType;
 import com.dtp.columns.BooleanColumn;
 import com.dtp.columns.DoubleColumn;
 import com.dtp.columns.FloatColumn;
@@ -32,6 +34,7 @@ class DataCollector {
 
     TableData getTableData(TypeElement typeElement) {
         String tableName = typeElement.getSimpleName().toString();
+        ChamberType chamberType = typeElement.getAnnotation(ChamberTable.class).type();
 
         List<ColumnData> columns = new ArrayList<>();
 
@@ -43,7 +46,7 @@ class DataCollector {
             }
         }
 
-        return new TableData(tableName, typeElement.asType(), columns);
+        return new TableData(chamberType, tableName, typeElement.asType(), columns);
     }
 
     private ColumnData getColumnData(VariableElement variableElement) {

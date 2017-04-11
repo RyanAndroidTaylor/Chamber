@@ -8,6 +8,7 @@ import com.dtp.columns.FloatColumn;
 import com.dtp.columns.IntColumn;
 import com.dtp.columns.LongColumn;
 import com.dtp.columns.StringColumn;
+import com.squareup.javapoet.TypeName;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.TypeMirror;
 import javax.tools.Diagnostic;
 
 /**
@@ -33,7 +35,6 @@ class DataCollector {
 
     TableData getTableData(TypeElement typeElement) {
         String tableName = typeElement.getSimpleName().toString();
-        ChamberType chamberType = typeElement.getAnnotation(ChamberTable.class).type();
 
         List<ColumnData> columns = new ArrayList<>();
 
@@ -45,7 +46,7 @@ class DataCollector {
             }
         }
 
-        return new TableData(chamberType, tableName, typeElement.asType(), columns);
+        return new TableData(tableName, typeElement.asType(), columns);
     }
 
     private ColumnData getColumnData(VariableElement variableElement) {
@@ -55,13 +56,14 @@ class DataCollector {
         boolean unique = column.unique();
 
         Type type = getType(variableElement);
+        TypeName dataType = TypeName.get(variableElement.asType());
 
         String variableName = variableElement.getSimpleName().toString();
 
         if (columnName.equals("undefined"))
             columnName = variableName.substring(0, 1).toUpperCase() + variableName.substring(1);
 
-        return new ColumnData.Builder(variableElement.getSimpleName().toString(), formatAsStaticFinalName(variableName), type)
+        return new ColumnData.Builder(variableElement.getSimpleName().toString(), formatAsStaticFinalName(variableName), type, dataType)
                 .setColumnName(columnName)
                 .setNotNull(notNull)
                 .setUnique(unique)

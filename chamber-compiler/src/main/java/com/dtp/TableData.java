@@ -14,7 +14,6 @@ import static com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImp
 
 public class TableData {
 
-    public ChamberType chamberType;
     public String tableName;
     public TypeMirror typeMirror;
     public List<ColumnData> columns;
@@ -22,8 +21,7 @@ public class TableData {
     public String modelClassName;
     public String fieldTableName;
 
-    public TableData(ChamberType chamberType, String tableName, TypeMirror typeMirror, List<ColumnData> columns) {
-        this.chamberType = chamberType;
+    public TableData(String tableName, TypeMirror typeMirror, List<ColumnData> columns) {
         this.tableName = tableName;
         this.typeMirror = typeMirror;
         this.columns = columns;

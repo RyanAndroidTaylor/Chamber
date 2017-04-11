@@ -13,6 +13,7 @@ import java.util.List;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
+import javax.lang.model.type.TypeMirror;
 
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 
@@ -45,7 +46,7 @@ class FileGenerator {
 
             builder.addMethod(generateDataStoreMethodSpec(tableData));
 
-//            builder.addType(BuilderGenerator.generateBuilder(tableData));
+            builder.addType(BuilderGenerator.generateBuilder(tableData));
 
             TypeSpec typeSpec = builder.build();
 
@@ -69,7 +70,7 @@ class FileGenerator {
     }
 
     private FieldSpec generateChamberIdSpec(String tableName) {
-        ColumnData columnData = new ColumnData.Builder("chamberId", "CHAMBER_ID", LongColumn.class)
+        ColumnData columnData = new ColumnData.Builder("chamberId", "CHAMBER_ID", LongColumn.class, TypeName.get(Long.class))
                 .setColumnName(Column.Companion.getCHAMBER_ID())
                 .setNotNull(true)
                 .setUnique(true)
@@ -79,7 +80,7 @@ class FileGenerator {
     }
 
     private FieldSpec generateFieldSpec(String tableName, ColumnData columnData) {
-        FieldSpec.Builder builder = FieldSpec.builder(columnData.type, columnData.variableName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
+        FieldSpec.Builder builder = FieldSpec.builder(columnData.columnType, columnData.variableName, Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
         builder.initializer("$N", buildColumnInitializer(tableName, columnData));
 
@@ -87,7 +88,7 @@ class FileGenerator {
     }
 
     private String buildColumnInitializer(String tableName, ColumnData columnData) {
-        return String.format("new %s(\"%s%s\", %b, %b)", ((Class) columnData.type).getSimpleName(), tableName, columnData.columnName, columnData.notNull, columnData.unique);
+        return String.format("new %s(\"%s%s\", %b, %b)", ((Class) columnData.columnType).getSimpleName(), tableName, columnData.columnName, columnData.notNull, columnData.unique);
     }
 
     private FieldSpec generateColumnsArraySpec(List<ColumnData> columns) {

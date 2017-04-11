@@ -13,7 +13,6 @@ import java.util.List;
 
 import javax.annotation.processing.Filer;
 import javax.lang.model.element.Modifier;
-import javax.lang.model.type.TypeMirror;
 
 import static com.squareup.javapoet.TypeSpec.classBuilder;
 
@@ -46,7 +45,7 @@ class FileGenerator {
 
             builder.addMethod(generateDataStoreMethodSpec(tableData));
 
-            builder.addType(BuilderGenerator.generateBuilder(tableData));
+            builder.addType(ItemBuilderFileGenerator.generateBuilder(tableData));
 
             TypeSpec typeSpec = builder.build();
 

@@ -1,5 +1,7 @@
 package com.dtp
 
+import com.dtp.query.Query
+
 /**
  * Created by ner on 4/6/17.
  */

@@ -11,7 +11,7 @@ import com.dtp.chamber.PersonTable
  */
 
 @ChamberTable()
-class Person(@ChamberColumn(notNull = true, unique = true) var firstName: String,
+data class Person(@ChamberColumn(notNull = true, unique = true) var firstName: String,
              @ChamberColumn(notNull = true, unique = true) var lastName: String,
              @ChamberColumn(notNull = true) var age: Int,
              @ChamberColumn var cool: Boolean) : DataTable {

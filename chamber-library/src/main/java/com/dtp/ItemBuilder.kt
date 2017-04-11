@@ -5,5 +5,5 @@ package com.dtp
  */
 
 interface ItemBuilder<out T : DataTable> {
-    fun buildItem(dataStoreOut: DataStoreOut, dataConnection: DataConnection): T
+    fun buildItem(dataStoreOut: DataStoreOut, database: Database): T
 }

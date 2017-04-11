@@ -14,7 +14,7 @@ import javax.lang.model.element.Modifier;
  * Created by ner on 4/10/17.
  */
 
-class BuilderGenerator {
+class ItemBuilderFileGenerator {
 
     static TypeSpec generateBuilder(TableData tableData) {
         TypeSpec.Builder builder = TypeSpec.classBuilder("Builder")
@@ -31,7 +31,7 @@ class BuilderGenerator {
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.get(tableData.typeMirror))
                 .addParameter(DataStoreOut.class, "dataStoreOut")
-                .addParameter(DataConnection.class, "dataConnection");
+                .addParameter(Database.class, "database");
 
         List<ColumnData> columns = tableData.columns;
 

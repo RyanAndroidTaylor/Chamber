@@ -1,4 +1,4 @@
-package com.dtp
+package com.dtp.query
 
 /**
  * Created by ner on 4/10/17.

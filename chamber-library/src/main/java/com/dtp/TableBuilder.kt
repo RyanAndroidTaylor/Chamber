@@ -38,7 +38,7 @@ class TableBuilder {
         open(tableName)
 
         for (column in columns) {
-            if (column.name == CHAMBER_ID)
+            if (column.name == CHAMBER_ID.name)
                 continue
 
             val columnBuilder = getColumnBuilder(column)
@@ -74,10 +74,10 @@ class TableBuilder {
         createString.append("CREATE TABLE ")
         createString.append(currentTable)
         createString.append(" ( ")
-        createString.append(CHAMBER_ID)
+        createString.append(CHAMBER_ID.name)
         createString.append(" INTEGER PRIMARY KEY AUTOINCREMENT")
 
-        columns.add("$currentTable$PERIOD$CHAMBER_ID")
+        columns.add("$currentTable$PERIOD${CHAMBER_ID.name}")
 
         return tableName
     }

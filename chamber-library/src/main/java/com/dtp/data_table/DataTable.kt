@@ -9,5 +9,6 @@ import com.dtp.DataStoreIn
 interface DataTable {
     val tableName: String
     var chamberId: Long
-    val dataStoreIn: DataStoreIn
+
+    fun getDataStoreIn(): DataStoreIn
 }

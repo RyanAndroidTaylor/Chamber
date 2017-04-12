@@ -37,10 +37,10 @@ class DataCollector {
     private Types typeUtils;
     private Elements elemenUtils;
 
-    DataCollector(Messager messager, Types typeUtils, Elements elemenUtils) {
+    DataCollector(Messager messager, Types typeUtils, Elements elementUtils) {
         this.messager = messager;
         this.typeUtils = typeUtils;
-        this.elemenUtils = elemenUtils;
+        this.elemenUtils = elementUtils;
     }
 
     TableData getTableData(TypeElement typeElement) {
@@ -95,7 +95,7 @@ class DataCollector {
         if (columnName.equals("undefined"))
             columnName = variableName.substring(0, 1).toUpperCase() + variableName.substring(1);
 
-        return new ColumnData.Builder(variableElement.getSimpleName().toString(), formatAsStaticFinalName(variableName), type, dataType)
+        return new ColumnData.Builder(variableElement.getSimpleName().toString(), Util.formatAsStaticFinalName(variableName), type, dataType)
                 .setColumnName(columnName)
                 .setNotNull(notNull)
                 .setUnique(unique)
@@ -147,20 +147,5 @@ class DataCollector {
                 messager.printMessage(Diagnostic.Kind.ERROR, "Type is not supported by Chamber " + variableElement.asType().toString());
                 throw new RuntimeException("Type was not supported by Chamber");
         }
-    }
-
-    private String formatAsStaticFinalName(String name) {
-        String formattedVariableName = "";
-
-        String[] splitName = name.split("(?=\\p{Upper})");
-
-        for (int i = 0; i < splitName.length; i++) {
-            formattedVariableName += splitName[i].toUpperCase();
-
-            if (i < splitName.length - 1)
-                formattedVariableName += "_";
-        }
-
-        return formattedVariableName;
     }
 }

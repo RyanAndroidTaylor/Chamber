@@ -18,15 +18,15 @@ import com.dtp.query.RawQuery
 internal class AndroidDatabase @JvmOverloads constructor(private val database: SQLiteDatabase, private val conflictAlgorithm: Int = CONFLICT_FAIL) : Database {
 
     override fun insert(dataTable: DataTable): Long {
-        return database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.dataStoreIn), conflictAlgorithm)
+        return database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.getDataStoreIn()), conflictAlgorithm)
     }
 
     override fun update(dataTable: DataTable): Int {
-        return database.update(dataTable.tableName, getContentValues(dataTable.dataStoreIn), dataTable.tableName + Column.CHAMBER_ID + "=?", arrayOf(dataTable.chamberId.toString()))
+        return database.update(dataTable.tableName, getContentValues(dataTable.getDataStoreIn()), dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
     }
 
     override fun delete(dataTable: DataTable): Int {
-        return database.delete(dataTable.tableName, dataTable.tableName + Column.CHAMBER_ID + "=?", arrayOf(dataTable.chamberId.toString()))
+        return database.delete(dataTable.tableName, dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
     }
 
     override fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T? {

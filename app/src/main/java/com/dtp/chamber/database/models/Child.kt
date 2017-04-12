@@ -12,11 +12,11 @@ import com.dtp.data_table.ChildDataTable
 @ChamberTable
 data class Child(@ChamberColumn val firstName: String,
                  @ChamberColumn val lastName: String,
-                 @ChamberColumn val gender: Int) : ChildDataTable {
+                 @ChamberColumn val gender: Int,
+                 @ChamberColumn val nullableItem: String?) : ChildDataTable {
 
     override val tableName = ChildTable.TABLE_NAME
     override var chamberId = -1L
     override var parentChamberId = -1L
-    override val dataStoreIn: DataStoreIn
-        get() = ChildTable.getDataStoreFor(this)
+    override fun getDataStoreIn() : DataStoreIn = ChildTable.getDataStoreFor(this)
 }

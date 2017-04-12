@@ -11,27 +11,27 @@ class AndroidDataStoreIn : DataStoreIn {
 
     val contentValues = ContentValues()
 
-    override fun put(key: Column, item: String) {
+    override fun put(key: Column, item: String?) {
         contentValues.put(key.name, item)
     }
 
-    override fun put(key: Column, item: Int) {
+    override fun put(key: Column, item: Int?) {
         contentValues.put(key.name, item)
     }
 
-    override fun put(key: Column, item: Long) {
+    override fun put(key: Column, item: Long?) {
         contentValues.put(key.name, item)
     }
 
-    override fun put(key: Column, item: Double) {
+    override fun put(key: Column, item: Double?) {
         contentValues.put(key.name, item)
     }
 
-    override fun put(key: Column, item: Float) {
+    override fun put(key: Column, item: Float?) {
         contentValues.put(key.name, item)
     }
 
-    override fun put(key: Column, item: Boolean) {
+    override fun put(key: Column, item: Boolean?) {
         contentValues.put(key.name, item)
     }
 }

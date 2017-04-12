@@ -12,6 +12,14 @@ import java.util.List;
 
 import javax.lang.model.element.Modifier;
 
+import static com.dtp.Const.CHAMBER_ID_COLUMN_VARIABLE_NAME;
+import static com.dtp.Const.CHAMBER_ID_VARIABLE_NAME;
+import static com.dtp.Const.DATABASE_VARIABLE_NAME;
+import static com.dtp.Const.DATA_STORE_OUT_VARIABLE_NAME;
+import static com.dtp.Const.PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME;
+import static com.dtp.Const.PARENT_CHAMBER_ID_VARIABLE_NAME;
+import static com.dtp.Const.TABLE_NAME;
+
 /**
  * Created by ner on 4/10/17.
  */
@@ -32,29 +40,33 @@ class ItemBuilderFileGenerator {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("buildItem")
                 .addModifiers(Modifier.PUBLIC)
                 .returns(TypeName.get(tableData.typeMirror))
-                .addParameter(DataStoreOut.class, "dataStoreOut")
-                .addParameter(Database.class, "database");
+                .addParameter(DataStoreOut.class, DATA_STORE_OUT_VARIABLE_NAME)
+                .addParameter(Database.class, DATABASE_VARIABLE_NAME);
 
-        builder.addStatement("$T $N = dataStoreOut.get($N)", TypeName.get(Long.class), "chamberId", "CHAMBER_ID");
+        builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
         if (tableData.tableType == TableType.CHILD)
-            builder.addStatement("$T $N = dataStoreOut.get($N)", TypeName.get(Long.class), "parentChamberId", "PARENT_CHAMBER_ID");
+            builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), PARENT_CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
         for (ColumnData columnData : tableData.columns) {
-            builder.addStatement("$T $N = dataStoreOut.get($N)", columnData.dataType, columnData.variableElementName, columnData.variableName);
+            builder.addStatement("$T $N = $N.get($N)", columnData.dataType, columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
         }
+
+        builder.addCode("\n");
 
         for (ChildData childData : tableData.childrenData) {
             if (childData.isList) {
-                builder.addStatement("$T $N = database.findAll(new $TTable.Builder(), $T.Companion.with($TTable.TABLE_NAME).whereEquals($TTable.PARENT_CHAMBER_ID, chamberId).build())",
-                        childData.type, childData.variableName, childData.parameterTypeName, TypeName.get(QueryBuilder.class), childData.parameterTypeName, childData.parameterTypeName);
+                builder.addStatement("$T $N = $N.findAll(new $TTable.Builder(), $T.Companion.with($TTable.$N).whereEquals($TTable.$N, $N).build())",
+                        childData.type, childData.variableName, DATABASE_VARIABLE_NAME, childData.parameterTypeName, TypeName.get(QueryBuilder.class), childData.parameterTypeName, TABLE_NAME,
+                        childData.parameterTypeName, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME, CHAMBER_ID_VARIABLE_NAME);
             } else {
-                builder.addStatement("$T $N = database.findFirst(new $TTable.Builder(), $T.Companion.with($TTable.TABLE_NAME).whereEquals($TTable.CHAMBER_ID, chamberId).build())",
-                        childData.type, childData.variableName, childData.type, TypeName.get(QueryBuilder.class), childData.type, childData.type);
+                builder.addStatement("$T $N = $N.findFirst(new $TTable.Builder(), $T.Companion.with($TTable.$N).whereEquals($TTable.$N, $N).build())",
+                        childData.type, childData.variableName, DATABASE_VARIABLE_NAME, childData.type, TypeName.get(QueryBuilder.class),
+                        childData.type, TABLE_NAME, childData.type, CHAMBER_ID_COLUMN_VARIABLE_NAME, CHAMBER_ID_VARIABLE_NAME);
             }
         }
 
-        builder.addCode("\n$T $N = new $T(", TypeName.get(tableData.typeMirror), tableData.fieldTableName, TypeName.get(tableData.typeMirror));
+        builder.addCode("$T $N = new $T(", TypeName.get(tableData.typeMirror), tableData.fieldTableName, TypeName.get(tableData.typeMirror));
 
         List<VariableData> variables = tableData.variables;
 
@@ -80,10 +92,10 @@ class ItemBuilderFileGenerator {
 
         builder.addCode(");\n\n");
 
-        builder.addStatement("$N.setChamberId($N)", tableData.fieldTableName, "chamberId");
+        builder.addStatement("$N.setChamberId($N)", tableData.fieldTableName, CHAMBER_ID_VARIABLE_NAME);
 
         if (tableData.tableType == TableType.CHILD)
-            builder.addStatement("$N.setParentChamberId($N)", tableData.fieldTableName, "parentChamberId");
+            builder.addStatement("$N.setParentChamberId($N)", tableData.fieldTableName, PARENT_CHAMBER_ID_VARIABLE_NAME);
 
         builder.addCode("\n");
 

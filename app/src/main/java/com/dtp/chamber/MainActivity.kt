@@ -14,11 +14,11 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val children = listOf(Child("First", "1", 1),
-                              Child("Second", "2", 2),
-                              Child("Third", "3", 3))
+        val children = listOf(Child("First", "1", 1, null),
+                              Child("Second", "2", 2, "NOT NULL"),
+                              Child("Third", "3", 3, null))
 
-        val person = Person("The", "Man", 124, true, children)
+        val person = Person("The", "Man", 124, true, "New Field", children)
 
         DataConnection.doAndClose {
             it.insert(person)

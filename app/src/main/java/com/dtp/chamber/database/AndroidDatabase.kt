@@ -4,8 +4,10 @@ import android.content.ContentValues
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteDatabase.CONFLICT_FAIL
+import android.database.sqlite.SQLiteDatabase.CONFLICT_REPLACE
 import com.dtp.*
 import com.dtp.columns.Column
+import com.dtp.data_table.DataTable
 import com.dtp.query.Query
 import com.dtp.query.RawQuery
 
@@ -15,7 +17,7 @@ import com.dtp.query.RawQuery
 
 internal class AndroidDatabase @JvmOverloads constructor(private val database: SQLiteDatabase, private val conflictAlgorithm: Int = CONFLICT_FAIL) : Database {
 
-    override fun insert(dataTable: DataTable): Long? {
+    override fun insert(dataTable: DataTable): Long {
         return database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.dataStoreIn), conflictAlgorithm)
     }
 

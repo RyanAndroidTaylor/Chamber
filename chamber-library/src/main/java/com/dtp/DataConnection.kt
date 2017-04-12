@@ -1,5 +1,7 @@
 package com.dtp
 
+import com.dtp.data_table.DataTable
+import com.dtp.data_table.ParentDataTable
 import com.dtp.query.Query
 
 /**
@@ -54,7 +56,17 @@ class DataConnection private constructor() {
     }
 
     private fun insert(dataTable: DataTable, database: Database) {
-        database.insert(dataTable)
+        val chamberId = database.insert(dataTable)
+
+        dataTable.chamberId = chamberId
+
+        if (dataTable is ParentDataTable) {
+            dataTable.chamberChildren.forEach {
+                it.parentChamberId = dataTable.chamberId
+
+                insert(it, database)
+            }
+        }
     }
 
     fun update(dataTable: DataTable) {
@@ -75,6 +87,9 @@ class DataConnection private constructor() {
 
     private fun update(dataTable: DataTable, database: Database) {
         database.update(dataTable)
+
+        if (dataTable is ParentDataTable)
+            dataTable.chamberChildren.forEach { update(it, database) }
     }
 
     fun delete(dataTable: DataTable) {
@@ -95,6 +110,9 @@ class DataConnection private constructor() {
 
     private fun delete(dataTable: DataTable, database: Database) {
         database.delete(dataTable)
+
+        if (dataTable is ParentDataTable)
+            dataTable.chamberChildren.forEach { delete(it, database) }
     }
 
     fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T? {

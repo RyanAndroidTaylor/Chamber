@@ -1,5 +1,6 @@
 package com.dtp
 
+import com.dtp.data_table.DataTable
 import com.dtp.query.Query
 
 /**
@@ -8,7 +9,7 @@ import com.dtp.query.Query
 
 interface Database {
 
-    fun insert(dataTable: DataTable): Long?
+    fun insert(dataTable: DataTable): Long
 
     fun update(dataTable: DataTable): Int
 

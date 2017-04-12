@@ -2,13 +2,18 @@ package com.dtp;
 
 import com.dtp.columns.Column;
 import com.dtp.columns.LongColumn;
+import com.dtp.data_table.ChildDataTable;
+import com.dtp.data_table.DataTable;
+import com.dtp.data_table.TableType;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.processing.Filer;
@@ -35,15 +40,21 @@ class FileGenerator {
                     .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
 
             builder.addField(generateTableNameSpec(tableData.tableName));
-            builder.addField(generateChamberIdSpec(tableData.tableName));
+            builder.addField(generateChamberIdSpec());
+
+            if (tableData.tableType == TableType.CHILD)
+                builder.addField(generateParentChamberIdSpec());
 
             for (ColumnData columnData : tableData.columns) {
                 builder.addField(generateFieldSpec(tableData.tableName, columnData));
             }
 
-            builder.addField(generateColumnsArraySpec(tableData.columns));
+            builder.addField(generateColumnsArraySpec(tableData));
 
             builder.addMethod(generateDataStoreMethodSpec(tableData));
+
+            if (tableData.tableType == TableType.PARENT)
+                builder.addMethod(generateChildrenMethodSpec(tableData));
 
             builder.addType(ItemBuilderFileGenerator.generateBuilder(tableData));
 
@@ -63,16 +74,25 @@ class FileGenerator {
     }
 
     private FieldSpec generateTableNameSpec(String tableName) {
-        return FieldSpec.builder(String.class, "NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
+        return FieldSpec.builder(String.class, "TABLE_NAME", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL)
                 .initializer("$S", tableName)
                 .build();
     }
 
-    private FieldSpec generateChamberIdSpec(String tableName) {
+    private FieldSpec generateChamberIdSpec() {
         ColumnData columnData = new ColumnData.Builder("chamberId", "CHAMBER_ID", LongColumn.class, TypeName.get(Long.class))
                 .setColumnName(Column.Companion.getCHAMBER_ID())
                 .setNotNull(true)
                 .setUnique(true)
+                .build();
+
+        return generateFieldSpec("", columnData);
+    }
+
+    private FieldSpec generateParentChamberIdSpec() {
+        ColumnData columnData = new ColumnData.Builder("parentChamberId", "PARENT_CHAMBER_ID", LongColumn.class, TypeName.get(Long.class))
+                .setColumnName(Column.Companion.getPARENT_CHAMBER_ID())
+                .setNotNull(true)
                 .build();
 
         return generateFieldSpec("", columnData);
@@ -90,12 +110,16 @@ class FileGenerator {
         return String.format("new %s(\"%s%s\", %b, %b)", ((Class) columnData.columnType).getSimpleName(), tableName, columnData.columnName, columnData.notNull, columnData.unique);
     }
 
-    private FieldSpec generateColumnsArraySpec(List<ColumnData> columns) {
+    private FieldSpec generateColumnsArraySpec(TableData tableData) {
+        List<ColumnData> columns = tableData.columns;
         FieldSpec.Builder builder = FieldSpec.builder(Column[].class, "COLUMNS", Modifier.PUBLIC, Modifier.STATIC, Modifier.FINAL);
 
         StringBuilder columnsBuilder = new StringBuilder("new Column[] {");
 
         columnsBuilder.append("CHAMBER_ID");
+
+        if (tableData.tableType == TableType.CHILD)
+            columnsBuilder.append(", PARENT_CHAMBER_ID");
 
         for (int i = 0; i < columns.size(); i++) {
             if (i == 0)
@@ -122,12 +146,39 @@ class FileGenerator {
                 .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
                 .addStatement("$N $N = $T.createDataStore()", className, variableName, TypeName.get(DataConnection.Companion.class));
 
+        if (tableData.tableType == TableType.CHILD)
+            builder.addStatement("$N.put($N, $N.get$N())", variableName, "PARENT_CHAMBER_ID", tableData.fieldTableName, Column.Companion.getPARENT_CHAMBER_ID());
+
         for (ColumnData columnData : tableData.columns) {
-            builder.addStatement("$N.put($N, person.get$N())", variableName, columnData.variableName, Util.toUpperFirstLetter(columnData.variableElementName));
+            builder.addStatement("$N.put($N, $N.get$N())", variableName, columnData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
         }
 
         builder.addStatement("return $N", variableName);
 
         return builder.build();
+    }
+
+    private MethodSpec generateChildrenMethodSpec(TableData tableData) {
+        ParameterizedTypeName returnType = ParameterizedTypeName.get(List.class, ChildDataTable.class);
+        ParameterizedTypeName listType = ParameterizedTypeName.get(ArrayList.class, ChildDataTable.class);
+
+        MethodSpec.Builder build = MethodSpec.methodBuilder("getChildrenFor")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(returnType)
+                .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
+                .addStatement("$T children = new $T()", returnType, listType)
+                .addCode("\n");
+
+        for (ChildData childData : tableData.childrenData) {
+            if (childData.isList)
+                build.addStatement("children.addAll($N.get$N())", tableData.fieldTableName, Util.toUpperFirstLetter(childData.variableName));
+            else
+                build.addStatement("children.add($N.get$N())", tableData.fieldTableName, Util.toUpperFirstLetter(childData.variableName));
+        }
+
+        build.addCode("\n");
+        build.addStatement("return children");
+
+        return build.build();
     }
 }

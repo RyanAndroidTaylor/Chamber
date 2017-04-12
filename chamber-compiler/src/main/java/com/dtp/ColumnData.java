@@ -8,7 +8,7 @@ import com.squareup.javapoet.TypeName;
  * Created by ner on 4/5/17.
  */
 
-class ColumnData {
+class ColumnData implements VariableData {
 
     final String variableElementName;
     final String variableName;

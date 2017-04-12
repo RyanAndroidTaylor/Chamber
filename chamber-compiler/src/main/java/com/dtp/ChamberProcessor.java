@@ -1,9 +1,9 @@
 package com.dtp;
 
 import com.dtp.annotations.ChamberTable;
+import com.dtp.data_table.DataTable;
 import com.google.auto.service.AutoService;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -18,6 +18,8 @@ import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 @AutoService(Processor.class)
@@ -26,13 +28,18 @@ public class ChamberProcessor extends AbstractProcessor {
     private Messager messager;
     private DataCollector dataCollector;
     private FileGenerator fileGenerator;
+    private Types typeUtils;
+    private Elements elementUtils;
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnvironment) {
         super.init(processingEnvironment);
 
+        typeUtils = processingEnvironment.getTypeUtils();
+        elementUtils = processingEnvironment.getElementUtils();
+
         messager = processingEnvironment.getMessager();
-        dataCollector = new DataCollector(messager);
+        dataCollector = new DataCollector(messager, typeUtils, elementUtils);
         fileGenerator = new FileGenerator(processingEnvironment.getFiler());
     }
 

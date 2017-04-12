@@ -1,13 +1,16 @@
 package com.dtp;
 
+import com.dtp.annotations.ChamberChild;
 import com.dtp.annotations.ChamberColumn;
-import com.dtp.annotations.ChamberTable;
 import com.dtp.columns.BooleanColumn;
 import com.dtp.columns.DoubleColumn;
 import com.dtp.columns.FloatColumn;
 import com.dtp.columns.IntColumn;
 import com.dtp.columns.LongColumn;
 import com.dtp.columns.StringColumn;
+import com.dtp.data_table.ChildDataTable;
+import com.dtp.data_table.ParentDataTable;
+import com.dtp.data_table.TableType;
 import com.squareup.javapoet.TypeName;
 
 import java.lang.reflect.Type;
@@ -18,7 +21,10 @@ import javax.annotation.processing.Messager;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.element.VariableElement;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
+import javax.lang.model.util.Elements;
+import javax.lang.model.util.Types;
 import javax.tools.Diagnostic;
 
 /**
@@ -28,25 +34,51 @@ import javax.tools.Diagnostic;
 class DataCollector {
 
     private Messager messager;
+    private Types typeUtils;
+    private Elements elemenUtils;
 
-    DataCollector(Messager messager) {
+    DataCollector(Messager messager, Types typeUtils, Elements elemenUtils) {
         this.messager = messager;
+        this.typeUtils = typeUtils;
+        this.elemenUtils = elemenUtils;
     }
 
     TableData getTableData(TypeElement typeElement) {
         String tableName = typeElement.getSimpleName().toString();
+        TableType tableType = TableType.NORMAL;
 
+        for (TypeMirror typeMirror : typeElement.getInterfaces()) {
+            TypeName typeName = TypeName.get(typeMirror);
+
+            if (typeName.equals(TypeName.get(ParentDataTable.class))) {
+                tableType = TableType.PARENT;
+            } else if (typeName.equals(TypeName.get(ChildDataTable.class))) {
+                tableType = TableType.CHILD;
+            }
+        }
+
+        List<VariableData> variables = new ArrayList<>();
         List<ColumnData> columns = new ArrayList<>();
+        List<ChildData> childrenData = new ArrayList<>();
 
         for (Element element : typeElement.getEnclosedElements()) {
             if (element instanceof VariableElement && element.getAnnotation(ChamberColumn.class) != null) {
                 VariableElement variableElement = (VariableElement) element;
 
-                columns.add(getColumnData(variableElement));
+                ColumnData columnData = getColumnData(variableElement);
+
+                columns.add(columnData);
+                variables.add(columnData);
+            } else if (element instanceof VariableElement && element.getAnnotation(ChamberChild.class) != null) {
+                VariableElement variableElement = (VariableElement) element;
+
+                ChildData childData = getChildData(variableElement);
+                childrenData.add(childData);
+                variables.add(childData);
             }
         }
 
-        return new TableData(tableName, typeElement.asType(), columns);
+        return new TableData(tableName, tableType, typeElement.asType(), columns, childrenData, variables);
     }
 
     private ColumnData getColumnData(VariableElement variableElement) {
@@ -68,6 +100,26 @@ class DataCollector {
                 .setNotNull(notNull)
                 .setUnique(unique)
                 .build();
+    }
+
+    private ChildData getChildData(VariableElement variableElement) {
+        String variableName = variableElement.getSimpleName().toString();
+        boolean isList = variableElement.asType().toString().contains("java.util.List");
+
+        TypeName type = TypeName.get(variableElement.asType());
+
+        TypeName parameterType = null;
+
+        TypeMirror typeMirror = variableElement.asType();
+
+        if (typeMirror instanceof DeclaredType) {
+            List<? extends TypeMirror> typeArguments = ((DeclaredType) typeMirror).getTypeArguments();
+
+            if (typeArguments.size() > 0)
+                parameterType = TypeName.get(typeArguments.get(0));
+        }
+
+        return new ChildData(variableName, type, parameterType, isList);
     }
 
     private Type getType(VariableElement variableElement) {

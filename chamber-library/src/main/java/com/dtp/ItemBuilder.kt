@@ -1,5 +1,7 @@
 package com.dtp
 
+import com.dtp.data_table.DataTable
+
 /**
  * Created by ner on 4/10/17.
  */

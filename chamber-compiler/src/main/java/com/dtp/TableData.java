@@ -1,5 +1,6 @@
 package com.dtp;
 
+import com.dtp.data_table.TableType;
 import com.squareup.javapoet.ClassName;
 
 import java.util.List;
@@ -12,19 +13,25 @@ import static com.sun.org.apache.xalan.internal.xsltc.trax.TransformerFactoryImp
  * Created by ner on 4/5/17.
  */
 
-public class TableData {
+class TableData {
 
-    public String tableName;
-    public TypeMirror typeMirror;
-    public List<ColumnData> columns;
-    public ClassName modelClass;
-    public String modelClassName;
-    public String fieldTableName;
+    String tableName;
+    TableType tableType;
+    TypeMirror typeMirror;
+    List<ColumnData> columns;
+    List<ChildData> childrenData;
+    List<VariableData> variables;
+    ClassName modelClass;
+    String modelClassName;
+    String fieldTableName;
 
-    public TableData(String tableName, TypeMirror typeMirror, List<ColumnData> columns) {
+    TableData(String tableName, TableType tableType, TypeMirror typeMirror, List<ColumnData> columns, List<ChildData> childrenData, List<VariableData> variables) {
         this.tableName = tableName;
+        this.tableType = tableType;
         this.typeMirror = typeMirror;
         this.columns = columns;
+        this.childrenData = childrenData;
+        this.variables = variables;
         modelClassName = tableName + Const.MODEL_CLASS_SUFFIX;
         modelClass = ClassName.get(PACKAGE_NAME, modelClassName);
         fieldTableName = Util.toLowerFistLetter(tableName);

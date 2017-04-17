@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
                               Child("Second", "2", 2, "NOT NULL"),
                               Child("Third", "3", 3, null))
 
-        val person = Person("The", "Man", 124, true, "New Field", children)
+        val person = Person("The", "Man", 124, true, "New Field", children, listOf("some", "thing", "is", "going", "on"))
 
         DataConnection.doAndClose {
             it.insert(person)

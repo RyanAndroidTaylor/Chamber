@@ -1,5 +1,6 @@
 package com.dtp;
 
+import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.TableType;
 import com.dtp.query.QueryBuilder;
 import com.squareup.javapoet.ClassName;
@@ -49,7 +50,12 @@ class ItemBuilderFileGenerator {
             builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), PARENT_CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
         for (ColumnData columnData : tableData.columns) {
-            builder.addStatement("$T $N = $N.get($N)", columnData.dataType, columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
+            if (columnData.columnType == StringListColumn.class) {
+                builder.addStatement("String $NString = $N.get($N)", columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
+                builder.addStatement("$T $N = $T.split($NString)", columnData.dataType, columnData.variableElementName, UtilsKt.class, columnData.variableElementName);
+            }
+            else
+                builder.addStatement("$T $N = $N.get($N)", columnData.dataType, columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
         }
 
         builder.addCode("\n");
@@ -66,7 +72,7 @@ class ItemBuilderFileGenerator {
             }
         }
 
-        builder.addCode("$T $N = new $T(", TypeName.get(tableData.typeMirror), tableData.fieldTableName, TypeName.get(tableData.typeMirror));
+        builder.addCode("$T $NObject = new $T(", TypeName.get(tableData.typeMirror), tableData.fieldTableName, TypeName.get(tableData.typeMirror));
 
         List<VariableData> variables = tableData.variables;
 
@@ -92,14 +98,14 @@ class ItemBuilderFileGenerator {
 
         builder.addCode(");\n\n");
 
-        builder.addStatement("$N.setChamberId($N)", tableData.fieldTableName, CHAMBER_ID_VARIABLE_NAME);
+        builder.addStatement("$NObject.setChamberId($N)", tableData.fieldTableName, CHAMBER_ID_VARIABLE_NAME);
 
         if (tableData.tableType == TableType.CHILD)
-            builder.addStatement("$N.setParentChamberId($N)", tableData.fieldTableName, PARENT_CHAMBER_ID_VARIABLE_NAME);
+            builder.addStatement("$NObject.setParentChamberId($N)", tableData.fieldTableName, PARENT_CHAMBER_ID_VARIABLE_NAME);
 
         builder.addCode("\n");
 
-        builder.addStatement("return $N", tableData.fieldTableName);
+        builder.addStatement("return $NObject", tableData.fieldTableName);
 
         return builder.build();
     }

@@ -18,7 +18,8 @@ data class Person(@ChamberColumn(notNull = true, unique = true) val firstName: S
                   @ChamberColumn(notNull = true) val age: Int,
                   @ChamberColumn val cool: Boolean,
                   @ChamberColumn(name = "NotRight") val newThing: String,
-                  @ChamberChild val children: List<Child>) : ParentDataTable {
+                  @ChamberChild val children: List<Child>,
+                  @ChamberColumn val stringArray: List<String>) : ParentDataTable {
 
     override val tableName = PersonTable.TABLE_NAME
 

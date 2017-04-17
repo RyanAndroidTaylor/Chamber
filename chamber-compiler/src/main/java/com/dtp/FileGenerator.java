@@ -2,6 +2,7 @@ package com.dtp;
 
 import com.dtp.columns.Column;
 import com.dtp.columns.LongColumn;
+import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.ChildDataTable;
 import com.dtp.data_table.DataTable;
 import com.dtp.data_table.TableType;
@@ -160,7 +161,12 @@ class FileGenerator {
             builder.addStatement("$N.put($N, $N.get$N())", variableName, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME, tableData.fieldTableName, Util.toUpperFirstLetter(PARENT_CHAMBER_ID_VARIABLE_NAME));
 
         for (ColumnData columnData : tableData.columns) {
-            builder.addStatement("$N.put($N, $N.get$N())", variableName, columnData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
+            if (columnData.variableElementName.startsWith("is"))
+                builder.addStatement("$N.put($N, $N.$N())", variableName, columnData.variableName, tableData.fieldTableName, columnData.variableElementName);
+            else if (columnData.columnType == StringListColumn.class)
+                builder.addStatement("$N.put($N, $T.joinToString($N.get$N()))", variableName, columnData.variableName, TypeName.get(UtilsKt.class), tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
+            else
+                builder.addStatement("$N.put($N, $N.get$N())", variableName, columnData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
         }
 
         builder.addStatement("return $N", variableName);

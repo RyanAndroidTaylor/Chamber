@@ -8,6 +8,7 @@ import com.dtp.columns.FloatColumn;
 import com.dtp.columns.IntColumn;
 import com.dtp.columns.LongColumn;
 import com.dtp.columns.StringColumn;
+import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.ChildDataTable;
 import com.dtp.data_table.ParentDataTable;
 import com.dtp.data_table.TableType;
@@ -125,12 +126,7 @@ class DataCollector {
     private Type getType(VariableElement variableElement) {
         switch (variableElement.asType().getKind()) {
             case DECLARED:
-                if (variableElement.asType().toString().equals("java.lang.String")) {
-                    return StringColumn.class;
-                } else {
-                    messager.printMessage(Diagnostic.Kind.ERROR, "Type is not supported by Chamber " + variableElement.asType().toString());
-                    throw new RuntimeException("Type was not supported by Chamber");
-                }
+                return getDeclaredType(variableElement.asType().toString());
             case BYTE:
             case SHORT:
             case INT:
@@ -145,6 +141,30 @@ class DataCollector {
                 return BooleanColumn.class;
             default:
                 messager.printMessage(Diagnostic.Kind.ERROR, "Type is not supported by Chamber " + variableElement.asType().toString());
+                throw new RuntimeException("Type was not supported by Chamber");
+        }
+    }
+
+    private Type getDeclaredType(String typeName) {
+        switch (typeName) {
+            case "java.lang.String":
+                return StringColumn.class;
+            case "java.lang.Long":
+                return LongColumn.class;
+            case "java.lang.Integer":
+            case "java.lang.Byte":
+            case "java.lang.Short":
+                return IntColumn.class;
+            case "java.lang.Float":
+                return FloatColumn.class;
+            case "java.lang.Double":
+                return DoubleColumn.class;
+            case "java.lang.Boolean":
+                return BooleanColumn.class;
+            case "java.util.List<java.lang.String>":
+                return StringListColumn.class;
+            default:
+                messager.printMessage(Diagnostic.Kind.ERROR, "Type is not supported by Chamber " + typeName);
                 throw new RuntimeException("Type was not supported by Chamber");
         }
     }

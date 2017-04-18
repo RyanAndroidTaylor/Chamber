@@ -51,7 +51,7 @@ class FileGenerator {
             builder.addField(generateTableNameSpec(tableData.tableName));
             builder.addField(generateChamberIdSpec());
 
-            if (tableData.tableType == TableType.CHILD)
+            if (tableData.isChild())
                 builder.addField(generateParentChamberIdSpec());
 
             for (ColumnData columnData : tableData.columns) {
@@ -62,10 +62,11 @@ class FileGenerator {
 
             builder.addMethod(generateDataStoreMethodSpec(tableData));
 
-            if (tableData.tableType == TableType.PARENT)
+            if (tableData.isParent())
                 builder.addMethod(generateChildrenMethodSpec(tableData));
 
-            builder.addType(ItemBuilderFileGenerator.generateBuilder(tableData));
+            if (!tableData.overridesBuilder)
+                builder.addType(ItemBuilderFileGenerator.generateBuilder(tableData));
 
             TypeSpec typeSpec = builder.build();
 
@@ -127,7 +128,7 @@ class FileGenerator {
 
         columnsBuilder.append(CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
-        if (tableData.tableType == TableType.CHILD) {
+        if (tableData.isChild()) {
             columnsBuilder.append(", ");
             columnsBuilder.append(PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME);
         }
@@ -157,7 +158,7 @@ class FileGenerator {
                 .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
                 .addStatement("$N $N = $T.createDataStore()", className, variableName, TypeName.get(DataConnection.Companion.class));
 
-        if (tableData.tableType == TableType.CHILD)
+        if (tableData.isChild())
             builder.addStatement("$N.put($N, $N.get$N())", variableName, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME, tableData.fieldTableName, Util.toUpperFirstLetter(PARENT_CHAMBER_ID_VARIABLE_NAME));
 
         for (ColumnData columnData : tableData.columns) {

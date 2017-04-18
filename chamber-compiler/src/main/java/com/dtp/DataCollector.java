@@ -2,6 +2,7 @@ package com.dtp;
 
 import com.dtp.annotations.ChamberChild;
 import com.dtp.annotations.ChamberColumn;
+import com.dtp.annotations.ChamberTable;
 import com.dtp.columns.BooleanColumn;
 import com.dtp.columns.DoubleColumn;
 import com.dtp.columns.FloatColumn;
@@ -45,6 +46,7 @@ class DataCollector {
     }
 
     TableData getTableData(TypeElement typeElement) {
+        boolean overrideBuilder = typeElement.getAnnotation(ChamberTable.class).overridesBuilder();
         String tableName = typeElement.getSimpleName().toString();
         TableType tableType = TableType.NORMAL;
 
@@ -52,9 +54,15 @@ class DataCollector {
             TypeName typeName = TypeName.get(typeMirror);
 
             if (typeName.equals(TypeName.get(ParentDataTable.class))) {
-                tableType = TableType.PARENT;
+                if (tableType == TableType.CHILD)
+                    tableType = TableType.BOTH;
+                else
+                    tableType = TableType.PARENT;
             } else if (typeName.equals(TypeName.get(ChildDataTable.class))) {
-                tableType = TableType.CHILD;
+                if (tableType == TableType.PARENT)
+                    tableType = TableType.BOTH;
+                else
+                    tableType = TableType.CHILD;
             }
         }
 
@@ -79,7 +87,7 @@ class DataCollector {
             }
         }
 
-        return new TableData(tableName, tableType, typeElement.asType(), columns, childrenData, variables);
+        return new TableData(tableName, tableType, typeElement.asType(), columns, childrenData, variables, overrideBuilder);
     }
 
     private ColumnData getColumnData(VariableElement variableElement) {

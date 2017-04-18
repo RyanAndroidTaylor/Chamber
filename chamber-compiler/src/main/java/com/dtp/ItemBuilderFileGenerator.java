@@ -46,7 +46,7 @@ class ItemBuilderFileGenerator {
 
         builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
-        if (tableData.tableType == TableType.CHILD)
+        if (tableData.isChild())
             builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), PARENT_CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
         for (ColumnData columnData : tableData.columns) {
@@ -100,7 +100,7 @@ class ItemBuilderFileGenerator {
 
         builder.addStatement("$NObject.setChamberId($N)", tableData.fieldTableName, CHAMBER_ID_VARIABLE_NAME);
 
-        if (tableData.tableType == TableType.CHILD)
+        if (tableData.isChild())
             builder.addStatement("$NObject.setParentChamberId($N)", tableData.fieldTableName, PARENT_CHAMBER_ID_VARIABLE_NAME);
 
         builder.addCode("\n");

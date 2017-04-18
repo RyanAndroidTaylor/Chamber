@@ -24,8 +24,9 @@ class TableData {
     ClassName modelClass;
     String modelClassName;
     String fieldTableName;
+    boolean overridesBuilder;
 
-    TableData(String tableName, TableType tableType, TypeMirror typeMirror, List<ColumnData> columns, List<ChildData> childrenData, List<VariableData> variables) {
+    TableData(String tableName, TableType tableType, TypeMirror typeMirror, List<ColumnData> columns, List<ChildData> childrenData, List<VariableData> variables, boolean overridesBuilder) {
         this.tableName = tableName;
         this.tableType = tableType;
         this.typeMirror = typeMirror;
@@ -35,5 +36,14 @@ class TableData {
         modelClassName = tableName + Const.MODEL_CLASS_SUFFIX;
         modelClass = ClassName.get(PACKAGE_NAME, modelClassName);
         fieldTableName = Util.toLowerFistLetter(tableName);
+        this.overridesBuilder = overridesBuilder;
+    }
+
+    public boolean isParent() {
+        return tableType == TableType.PARENT || tableType == TableType.BOTH;
+    }
+
+    public boolean isChild() {
+        return tableType == TableType.CHILD || tableType == TableType.BOTH;
     }
 }

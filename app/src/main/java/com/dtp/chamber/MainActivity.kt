@@ -23,7 +23,7 @@ class MainActivity : AppCompatActivity() {
         DataConnection.doAndClose {
             it.insert(person)
 
-            val loadedPerson = it.findFirst(PersonTable.Builder(), QueryBuilder.with(PersonTable.TABLE_NAME).build())
+            val loadedPerson = it.findFirst(Person.Builder(), QueryBuilder.with(PersonTable.TABLE_NAME).build())
 
             Log.i("MainActivity", "Loaded Person $loadedPerson")
         }

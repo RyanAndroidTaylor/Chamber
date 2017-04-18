@@ -7,5 +7,7 @@ import com.dtp.data_table.DataTable
  */
 
 interface ItemBuilder<out T : DataTable> {
+    val tableName: String
+
     fun buildItem(dataStoreOut: DataStoreOut, database: Database): T
 }

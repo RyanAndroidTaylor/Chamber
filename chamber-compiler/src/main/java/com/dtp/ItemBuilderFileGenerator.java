@@ -4,6 +4,7 @@ import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.TableType;
 import com.dtp.query.QueryBuilder;
 import com.squareup.javapoet.ClassName;
+import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.MethodSpec;
 import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
@@ -32,9 +33,20 @@ class ItemBuilderFileGenerator {
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .addSuperinterface(ParameterizedTypeName.get(ClassName.get(ItemBuilder.class), ClassName.get(tableData.typeMirror)));
 
+        builder.addMethod(generateTableNameMethodSpec(tableData));
+
         builder.addMethod(generateBuildItemMethodSpec(tableData));
 
         return builder.build();
+    }
+
+    private static MethodSpec generateTableNameMethodSpec(TableData tableData) {
+        return MethodSpec.methodBuilder("getTableName")
+                .returns(String.class)
+                .addAnnotation(Override.class)
+                .addModifiers(Modifier.PUBLIC)
+                .addStatement("return $S", tableData.tableName)
+                .build();
     }
 
     private static MethodSpec generateBuildItemMethodSpec(TableData tableData) {

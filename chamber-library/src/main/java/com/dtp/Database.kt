@@ -18,4 +18,6 @@ interface Database {
     fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T?
 
     fun <T : DataTable> findAll(itemBuilder: ItemBuilder<T>, query: Query): List<T>
+
+    fun count(tableName: String): Int
 }

@@ -7,6 +7,7 @@ import com.dtp.annotations.ChamberTable
 import com.dtp.chamber.ChildTable
 import com.dtp.chamber.PersonTable
 import com.dtp.chamber.PersonTable.*
+import com.dtp.chamber.ToyTable
 import com.dtp.data_table.ChildDataTable
 import com.dtp.data_table.ParentDataTable
 import com.dtp.query.QueryBuilder
@@ -33,6 +34,9 @@ data class Person(@ChamberColumn(notNull = true, unique = true) val firstName: S
     override val chamberChildren: List<ChildDataTable> = PersonTable.getChildrenFor(this)
 
     class Builder : ItemBuilder<Person> {
+        override val tableName: String
+            get() = ToyTable.TABLE_NAME
+
         override fun buildItem(dataStoreOut: DataStoreOut, database: Database): Person {
             val chamberId = dataStoreOut.get<Long>(CHAMBER_ID)
             val firstName = dataStoreOut.get<String>(FIRST_NAME)

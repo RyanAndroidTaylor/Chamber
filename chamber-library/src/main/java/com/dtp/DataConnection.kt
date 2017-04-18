@@ -1,8 +1,10 @@
 package com.dtp
 
+import com.dtp.columns.Column
 import com.dtp.data_table.DataTable
 import com.dtp.data_table.ParentDataTable
 import com.dtp.query.Query
+import com.dtp.query.QueryBuilder
 
 /**
  * Created by ner on 4/6/17.
@@ -115,6 +117,17 @@ class DataConnection private constructor() {
             dataTable.chamberChildren.forEach { delete(it, database) }
     }
 
+    fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, chamberId: Long): T? {
+        var item: T? = null
+
+        databaseManager.transaction {
+            QueryBuilder
+            item = it.findFirst(itemBuilder, QueryBuilder.with(itemBuilder.tableName).whereEquals(Column.CHAMBER_ID, chamberId).build())
+        }
+
+        return item
+    }
+
     fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T? {
         val database = databaseManager.beginTransaction()
 
@@ -133,5 +146,23 @@ class DataConnection private constructor() {
         databaseManager.endTransaction()
 
         return items
+    }
+
+    fun count(tableName: String): Int {
+        val database = databaseManager.beginTransaction()
+
+        val count = database.count(tableName)
+
+        databaseManager.endTransaction()
+
+        return count
+    }
+
+    private fun DatabaseManager.transaction(block: (Database) -> Unit) {
+        val database = beginTransaction()
+
+        block(database)
+
+        endTransaction()
     }
 }

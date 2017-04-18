@@ -55,6 +55,20 @@ internal class AndroidDatabase @JvmOverloads constructor(private val database: S
         return items
     }
 
+    override fun count(tableName: String): Int {
+        val cursor: Cursor?
+        var count = -1
+
+        cursor = database.rawQuery("SELECT COUNT (*) FROM $tableName", null).also {
+            if (it.moveToFirst())
+                count = it.getInt(0)
+        }
+
+        cursor?.close()
+
+        return count
+    }
+
     private fun getCursor(query: Query): Cursor {
         if (query is RawQuery) {
             return database.rawQuery(query.query, query.selectionArgs)

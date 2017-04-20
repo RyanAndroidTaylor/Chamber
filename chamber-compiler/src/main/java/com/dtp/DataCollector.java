@@ -4,10 +4,15 @@ import com.dtp.annotations.ChamberChild;
 import com.dtp.annotations.ChamberColumn;
 import com.dtp.annotations.ChamberTable;
 import com.dtp.columns.BooleanColumn;
+import com.dtp.columns.BooleanListColumn;
 import com.dtp.columns.DoubleColumn;
+import com.dtp.columns.DoubleListColumn;
 import com.dtp.columns.FloatColumn;
+import com.dtp.columns.FloatListColumn;
 import com.dtp.columns.IntColumn;
+import com.dtp.columns.IntListColumn;
 import com.dtp.columns.LongColumn;
+import com.dtp.columns.LongListColumn;
 import com.dtp.columns.StringColumn;
 import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.ChildDataTable;
@@ -92,6 +97,7 @@ class DataCollector {
 
     private ColumnData getColumnData(VariableElement variableElement) {
         ChamberColumn column = variableElement.getAnnotation(ChamberColumn.class);
+        boolean isList = variableElement.asType().toString().contains("java.util.List");
         String columnName = column.name();
         boolean notNull = column.notNull();
         boolean unique = column.unique();
@@ -108,6 +114,7 @@ class DataCollector {
                 .setColumnName(columnName)
                 .setNotNull(notNull)
                 .setUnique(unique)
+                .isList(isList)
                 .build();
     }
 
@@ -171,6 +178,16 @@ class DataCollector {
                 return BooleanColumn.class;
             case "java.util.List<java.lang.String>":
                 return StringListColumn.class;
+            case "java.util.List<java.lang.Integer>":
+                return IntListColumn.class;
+            case "java.util.List<java.lang.Long>":
+                return LongListColumn.class;
+            case "java.util.List<java.lang.Float>":
+                return FloatListColumn.class;
+            case "java.util.List<java.lang.Double>":
+                return DoubleListColumn.class;
+            case "java.util.List<java.lang.Boolean>":
+                return BooleanListColumn.class;
             default:
                 messager.printMessage(Diagnostic.Kind.ERROR, "Type is not supported by Chamber " + typeName);
                 throw new RuntimeException("Type was not supported by Chamber");

@@ -15,7 +15,7 @@ import com.dtp.query.RawQuery
  * Created by ner on 4/6/17.
  */
 
-internal class AndroidDatabase @JvmOverloads constructor(private val database: SQLiteDatabase, private val conflictAlgorithm: Int = CONFLICT_FAIL) : Database {
+internal class AndroidDatabase @JvmOverloads constructor(private val database: SQLiteDatabase, private val conflictAlgorithm: Int = CONFLICT_REPLACE) : Database {
 
     override fun insert(dataTable: DataTable): Long {
         return database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.getDataStoreIn()), conflictAlgorithm)

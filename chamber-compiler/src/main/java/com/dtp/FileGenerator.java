@@ -1,11 +1,10 @@
 package com.dtp;
 
 import com.dtp.columns.Column;
+import com.dtp.columns.IntListColumn;
 import com.dtp.columns.LongColumn;
 import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.ChildDataTable;
-import com.dtp.data_table.DataTable;
-import com.dtp.data_table.TableType;
 import com.squareup.javapoet.FieldSpec;
 import com.squareup.javapoet.JavaFile;
 import com.squareup.javapoet.MethodSpec;
@@ -14,6 +13,7 @@ import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -150,27 +150,27 @@ class FileGenerator {
 
     private MethodSpec generateDataStoreMethodSpec(TableData tableData) {
         String className = DataStoreIn.class.getSimpleName();
-        String variableName = Util.toLowerFistLetter(className);
+        String dataStore = Util.toLowerFistLetter(className);
 
         MethodSpec.Builder builder = MethodSpec.methodBuilder("getDataStoreFor")
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
                 .returns(DataStoreIn.class)
                 .addParameter(TypeName.get(tableData.typeMirror), tableData.fieldTableName)
-                .addStatement("$N $N = $T.createDataStore()", className, variableName, TypeName.get(DataConnection.Companion.class));
+                .addStatement("$N $N = $T.createDataStore()", className, dataStore, TypeName.get(DataConnection.Companion.class));
 
         if (tableData.isChild())
-            builder.addStatement("$N.put($N, $N.get$N())", variableName, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME, tableData.fieldTableName, Util.toUpperFirstLetter(PARENT_CHAMBER_ID_VARIABLE_NAME));
+            builder.addStatement("$N.put($N, $N.get$N())", dataStore, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME, tableData.fieldTableName, Util.toUpperFirstLetter(PARENT_CHAMBER_ID_VARIABLE_NAME));
 
         for (ColumnData columnData : tableData.columns) {
             if (columnData.variableElementName.startsWith("is"))
-                builder.addStatement("$N.put($N, $N.$N())", variableName, columnData.variableName, tableData.fieldTableName, columnData.variableElementName);
-            else if (columnData.columnType == StringListColumn.class)
-                builder.addStatement("$N.put($N, $T.joinToString($N.get$N()))", variableName, columnData.variableName, TypeName.get(UtilsKt.class), tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
+                builder.addStatement("$N.put($N, $N.$N())", dataStore, columnData.variableName, tableData.fieldTableName, columnData.variableElementName);
+            else if (columnData.isList)
+                builder.addStatement("$N.put($N, $T.listToString($N.get$N()))", dataStore, columnData.variableName, TypeName.get(UtilsKt.class), tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
             else
-                builder.addStatement("$N.put($N, $N.get$N())", variableName, columnData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
+                builder.addStatement("$N.put($N, $N.get$N())", dataStore, columnData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(columnData.variableElementName));
         }
 
-        builder.addStatement("return $N", variableName);
+        builder.addStatement("return $N", dataStore);
 
         return builder.build();
     }

@@ -41,7 +41,7 @@ class QueryBuilder private constructor() {
             return queryBuilder
         }
 
-        fun all(tableName: String): Query {
+        fun any(tableName: String): Query {
             val queryBuilder = QueryBuilder()
 
             queryBuilder.tableName = tableName

@@ -60,7 +60,8 @@ class TableBuilder {
 
     private fun getColumnBuilder(column: Column): ColumnBuilder {
         when (column) {
-            is StringColumn, is StringListColumn -> return buildTextColumn(column.name)
+            is StringColumn, is StringListColumn, is IntListColumn, is LongListColumn,
+            is FloatListColumn, is DoubleListColumn, is BooleanListColumn -> return buildTextColumn(column.name)
             is IntColumn, is LongColumn -> return buildIntColumn(column.name)
             is FloatColumn, is DoubleColumn -> return buildRealColumn(column.name)
             is BooleanColumn -> return buildBooleanColumn(column.name)

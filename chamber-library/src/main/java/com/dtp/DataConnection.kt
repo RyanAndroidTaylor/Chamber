@@ -117,17 +117,6 @@ class DataConnection private constructor() {
             dataTable.chamberChildren.forEach { delete(it, database) }
     }
 
-    fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, chamberId: Long): T? {
-        var item: T? = null
-
-        databaseManager.transaction {
-            QueryBuilder
-            item = it.findFirst(itemBuilder, QueryBuilder.with(itemBuilder.tableName).whereEquals(Column.CHAMBER_ID, chamberId).build())
-        }
-
-        return item
-    }
-
     fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T? {
         val database = databaseManager.beginTransaction()
 

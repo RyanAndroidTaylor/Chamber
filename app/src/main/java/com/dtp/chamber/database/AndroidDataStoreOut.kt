@@ -13,8 +13,8 @@ class AndroidDataStoreOut(val cursor: Cursor) : DataStoreOut {
     @Suppress("UNCHECKED_CAST")
     override fun <T> get(key: Column): T {
         when (key) {
-            is StringColumn,
-            is StringListColumn -> return cursor.getString(cursor.getColumnIndex(key.name)) as T
+            is StringColumn, is StringListColumn, is IntListColumn, is LongListColumn,
+            is FloatListColumn, is DoubleListColumn, is BooleanListColumn -> return cursor.getString(cursor.getColumnIndex(key.name)) as T
             is IntColumn -> return cursor.getInt(cursor.getColumnIndex(key.name)) as T
             is LongColumn -> return cursor.getLong(cursor.getColumnIndex(key.name)) as T
             is DoubleColumn -> return cursor.getDouble(cursor.getColumnIndex(key.name)) as T

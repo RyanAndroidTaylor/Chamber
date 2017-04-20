@@ -17,8 +17,9 @@ class ColumnData implements VariableData {
     final String columnName;
     final boolean notNull;
     final boolean unique;
+    final boolean isList;
 
-    private ColumnData(String variableElementName, String variableName, Type columnType, TypeName dataType, String columnName, boolean notNull, boolean unique) {
+    private ColumnData(String variableElementName, String variableName, Type columnType, TypeName dataType, String columnName, boolean notNull, boolean unique, boolean isList) {
         this.variableElementName = variableElementName;
         this.variableName = variableName;
         this.columnType = columnType;
@@ -26,6 +27,7 @@ class ColumnData implements VariableData {
         this.columnName = columnName;
         this.notNull = notNull;
         this.unique = unique;
+        this.isList = isList;
     }
 
     static class Builder {
@@ -37,6 +39,7 @@ class ColumnData implements VariableData {
         private String columnName;
         private boolean notNull;
         private boolean unique;
+        private boolean isList;
 
         Builder(String variableElementName, String variableName, Type type, TypeName dataType)  {
             this.variableElementName = variableElementName;
@@ -63,8 +66,14 @@ class ColumnData implements VariableData {
             return this;
         }
 
+        Builder isList(boolean isList) {
+            this.isList = isList;
+
+            return this;
+        }
+
         ColumnData build() {
-            return new ColumnData(variableElementName, variableName, type, dataType, columnName, notNull, unique);
+            return new ColumnData(variableElementName, variableName, type, dataType, columnName, notNull, unique, isList);
         }
     }
 }

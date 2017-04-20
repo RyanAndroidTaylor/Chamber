@@ -1,5 +1,12 @@
 package com.dtp;
 
+import com.dtp.columns.BooleanListColumn;
+import com.dtp.columns.DoubleListColumn;
+import com.dtp.columns.FloatListColumn;
+import com.dtp.columns.IntColumn;
+import com.dtp.columns.IntListColumn;
+import com.dtp.columns.LongListColumn;
+import com.dtp.columns.StringColumn;
 import com.dtp.columns.StringListColumn;
 import com.dtp.data_table.TableType;
 import com.dtp.query.QueryBuilder;
@@ -10,6 +17,7 @@ import com.squareup.javapoet.ParameterizedTypeName;
 import com.squareup.javapoet.TypeName;
 import com.squareup.javapoet.TypeSpec;
 
+import java.lang.reflect.Type;
 import java.util.List;
 
 import javax.lang.model.element.Modifier;
@@ -49,6 +57,29 @@ class ItemBuilderFileGenerator {
                 .build();
     }
 
+    private static void addListStatement(MethodSpec.Builder builder, ColumnData columnData) {
+        builder.addStatement("String $NString = $N.get($N)", columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
+        builder.addStatement("$T $N = $T.splitAs$N($NString)", columnData.dataType, columnData.variableElementName, UtilsKt.class, getSplitType(columnData.columnType), columnData.variableElementName);
+    }
+
+    private static String getSplitType(Type type) {
+        if (type == StringListColumn.class) {
+            return "String";
+        } else if (type == IntListColumn.class) {
+            return "Int";
+        } else if (type == LongListColumn.class) {
+            return "Long";
+        } else if (type == FloatListColumn.class) {
+            return "Float";
+        } else if (type == DoubleListColumn.class) {
+            return "Double";
+        } else if (type == BooleanListColumn.class) {
+            return "Boolean";
+        } else {
+            throw new IllegalStateException("Type is not supported " + type);
+        }
+    }
+
     private static MethodSpec generateBuildItemMethodSpec(TableData tableData) {
         MethodSpec.Builder builder = MethodSpec.methodBuilder("buildItem")
                 .addModifiers(Modifier.PUBLIC)
@@ -62,10 +93,8 @@ class ItemBuilderFileGenerator {
             builder.addStatement("$T $N = $N.get($N)", TypeName.get(Long.class), PARENT_CHAMBER_ID_VARIABLE_NAME, DATA_STORE_OUT_VARIABLE_NAME, PARENT_CHAMBER_ID_COLUMN_VARIABLE_NAME);
 
         for (ColumnData columnData : tableData.columns) {
-            if (columnData.columnType == StringListColumn.class) {
-                builder.addStatement("String $NString = $N.get($N)", columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
-                builder.addStatement("$T $N = $T.split($NString)", columnData.dataType, columnData.variableElementName, UtilsKt.class, columnData.variableElementName);
-            }
+            if (columnData.isList)
+                addListStatement(builder, columnData);
             else
                 builder.addStatement("$T $N = $N.get($N)", columnData.dataType, columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
         }

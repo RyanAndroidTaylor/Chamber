@@ -19,12 +19,23 @@ class MainActivity : AppCompatActivity() {
                               Child("Second", "2", 2, "NOT NULL", Toy("Gun", 250)),
                               Child("Third", "3", 3, null, Toy("Axe", 2399)))
 
-        val person = Person("The", "Man", 124, true, "New Field", children, listOf("some", "thing", "is", "going", "on"))
+        val person = Person("The",
+                            "Man",
+                            124,
+                            true,
+                            "New Field",
+                            children,
+                            listOf("some", "thing", "is", "going", "on"),
+                            listOf(101, 505, 909),
+                            listOf(111111L, 222222L, 333333L),
+                            listOf(1.0f, 2.1f, 3.2f),
+                            listOf(11.22, 22.33, 44.55),
+                            listOf(true, false, true))
 
         DataConnection.doAndClose {
             it.insert(person)
 
-            val loadedPerson = it.findFirst(Person.Builder(), QueryBuilder.with(PersonTable.TABLE_NAME).build())
+            val loadedPerson = it.findFirst(PersonTable.Builder(), QueryBuilder.any(PersonTable.TABLE_NAME))
 
             Log.i("MainActivity", "Loaded Person $loadedPerson")
         }

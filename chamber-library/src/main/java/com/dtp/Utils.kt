@@ -4,8 +4,8 @@ package com.dtp
  * Created by ner on 4/17/17.
  */
 
-fun listToString(items: List<Any>): String {
-    return items.joinToString()
+fun listToString(items: List<Any>?): String? {
+    return items?.joinToString()
 }
 
 fun splitAsString(stringList: String): List<String> {

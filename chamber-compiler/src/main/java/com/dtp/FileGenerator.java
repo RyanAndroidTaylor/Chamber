@@ -187,9 +187,11 @@ class FileGenerator {
                 .addCode("\n");
 
         for (ChildData childData : tableData.childrenData) {
-            if (childData.isList)
-                build.addStatement("children.addAll($N.get$N())", tableData.fieldTableName, Util.toUpperFirstLetter(childData.variableName));
-            else
+            if (childData.isList) {
+                build.addStatement("List<$T> $NItems = $N.get$N()", childData.parameterTypeName, childData.variableName, tableData.fieldTableName, Util.toUpperFirstLetter(childData.variableName));
+                build.addCode("if ($NItems != null)\n", childData.variableName);
+                build.addStatement("\tchildren.addAll($NItems)", childData.variableName);
+            } else
                 build.addStatement("children.add($N.get$N())", tableData.fieldTableName, Util.toUpperFirstLetter(childData.variableName));
         }
 

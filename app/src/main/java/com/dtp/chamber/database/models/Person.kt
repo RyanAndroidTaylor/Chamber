@@ -28,7 +28,9 @@ data class Person(@ChamberColumn(notNull = true, unique = true) val firstName: S
                   @ChamberColumn val longList: List<Long>,
                   @ChamberColumn val floatList: List<Float>,
                   @ChamberColumn val doubleList: List<Double>,
-                  @ChamberColumn val booleanList: List<Boolean>) : ParentDataTable {
+                  @ChamberColumn val booleanList: List<Boolean>,
+                  @ChamberColumn val nullList: List<String>?,
+                  @ChamberChild val nullChildList: List<Child>?) : ParentDataTable {
 
     override val tableName = PersonTable.TABLE_NAME
 

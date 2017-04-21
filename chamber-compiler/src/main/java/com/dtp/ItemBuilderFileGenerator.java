@@ -59,7 +59,9 @@ class ItemBuilderFileGenerator {
 
     private static void addListStatement(MethodSpec.Builder builder, ColumnData columnData) {
         builder.addStatement("String $NString = $N.get($N)", columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
-        builder.addStatement("$T $N = $T.splitAs$N($NString)", columnData.dataType, columnData.variableElementName, UtilsKt.class, getSplitType(columnData.columnType), columnData.variableElementName);
+        builder.addStatement("$T $N = null", columnData.dataType, columnData.variableElementName);
+        builder.addCode("if ($NString != null)", columnData.variableElementName);
+        builder.addStatement("\t$N = $T.splitAs$N($NString)", columnData.variableElementName, UtilsKt.class, getSplitType(columnData.columnType), columnData.variableElementName);
     }
 
     private static String getSplitType(Type type) {
@@ -97,9 +99,9 @@ class ItemBuilderFileGenerator {
                 addListStatement(builder, columnData);
             else
                 builder.addStatement("$T $N = $N.get($N)", columnData.dataType, columnData.variableElementName, DATA_STORE_OUT_VARIABLE_NAME, columnData.variableName);
-        }
 
-        builder.addCode("\n");
+            builder.addCode("\n");
+        }
 
         for (ChildData childData : tableData.childrenData) {
             if (childData.isList) {

@@ -17,17 +17,14 @@ import com.dtp.query.RawQuery
 
 internal class AndroidDatabase @JvmOverloads constructor(private val database: SQLiteDatabase, private val conflictAlgorithm: Int = CONFLICT_REPLACE) : Database {
 
-    override fun insert(dataTable: DataTable): Long {
-        return database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.getDataStoreIn()), conflictAlgorithm)
-    }
+    override fun insert(dataTable: DataTable): Long =
+            database.insertWithOnConflict(dataTable.tableName, null, getContentValues(dataTable.getDataStoreIn()), conflictAlgorithm)
 
-    override fun update(dataTable: DataTable): Int {
-        return database.update(dataTable.tableName, getContentValues(dataTable.getDataStoreIn()), dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
-    }
+    override fun update(dataTable: DataTable): Int =
+            database.update(dataTable.tableName, getContentValues(dataTable.getDataStoreIn()), dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
 
-    override fun delete(dataTable: DataTable): Int {
-        return database.delete(dataTable.tableName, dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
-    }
+    override fun delete(dataTable: DataTable): Int =
+            database.delete(dataTable.tableName, dataTable.tableName + Column.CHAMBER_ID.name + "=?", arrayOf(dataTable.chamberId.toString()))
 
     override fun <T : DataTable> findFirst(itemBuilder: ItemBuilder<T>, query: Query): T? {
         var item: T? = null
@@ -78,7 +75,6 @@ internal class AndroidDatabase @JvmOverloads constructor(private val database: S
     }
 
     private fun getContentValues(dataStoreIn: DataStoreIn): ContentValues {
-        //TODO Should fail the insert and log an error but not crash the app.
         if (dataStoreIn is AndroidDataStoreIn)
             return dataStoreIn.contentValues
         else

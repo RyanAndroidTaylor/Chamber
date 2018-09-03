@@ -101,53 +101,35 @@ class QueryBuilder private constructor() {
         return this
     }
 
-    fun whereEquals(column: Column, value: Any): QueryBuilder {
-        return where(column, value, EQUALS)
-    }
+    fun whereEquals(column: Column, value: Any): QueryBuilder = where(column, value, EQUALS)
 
-    fun whereNotEquals(column: Column, value: Any): QueryBuilder {
-        return where(column, value, NOT_EQUALS)
-    }
+    fun whereNotEquals(column: Column, value: Any): QueryBuilder = where(column, value, NOT_EQUALS)
 
-    fun whereLessThan(column: Column, value: Any): QueryBuilder {
-        return where(column, value, LESS_THAN)
-    }
+    fun whereLessThan(column: Column, value: Any): QueryBuilder = where(column, value, LESS_THAN)
 
-    fun whereLessThanOrEqual(column: Column, value: Any): QueryBuilder {
-        return where(column, value, LESS_THAN_OR_EQUAL)
-    }
+    fun whereLessThanOrEqual(column: Column, value: Any): QueryBuilder =
+            where(column, value, LESS_THAN_OR_EQUAL)
 
-    fun whereGreaterThan(column: Column, value: Any): QueryBuilder {
-        return where(column, value, GREATER_THAN)
-    }
+    fun whereGreaterThan(column: Column, value: Any): QueryBuilder =
+            where(column, value, GREATER_THAN)
 
-    fun whereGreaterThanOrEqual(column: Column, value: Any): QueryBuilder {
-        return where(column, value, GREATER_THAN_OR_EQUAL)
-    }
+    fun whereGreaterThanOrEqual(column: Column, value: Any): QueryBuilder =
+            where(column, value, GREATER_THAN_OR_EQUAL)
 
-    fun contains(column: Column, value: Any): QueryBuilder {
-        return where(column, "%$value%", LIKE)
-    }
+    fun contains(column: Column, value: Any): QueryBuilder = where(column, "%$value%", LIKE)
 
-    fun startsWith(column: Column, value: Any): QueryBuilder {
-        return where(column, "$value%", LIKE)
-    }
+    fun startsWith(column: Column, value: Any): QueryBuilder = where(column, "$value%", LIKE)
 
-    fun endsWith(column: Column, value: Any): QueryBuilder {
-        return where(column, "%$value", LIKE)
-    }
+    fun endsWith(column: Column, value: Any): QueryBuilder = where(column, "%$value", LIKE)
 
-    fun doesNotContain(column: Column, value: Any): QueryBuilder {
-        return where(column, "%$value%", NOT_LIKE)
-    }
+    fun doesNotContain(column: Column, value: Any): QueryBuilder =
+            where(column, "%$value%", NOT_LIKE)
 
-    fun doesNotStartWith(column: Column, value: Any): QueryBuilder {
-        return where(column, "$value%", NOT_LIKE)
-    }
+    fun doesNotStartWith(column: Column, value: Any): QueryBuilder =
+            where(column, "$value%", NOT_LIKE)
 
-    fun doesNotEndsWith(column: Column, value: Any): QueryBuilder {
-        return where(column, "%$value", NOT_LIKE)
-    }
+    fun doesNotEndsWith(column: Column, value: Any): QueryBuilder =
+            where(column, "%$value", NOT_LIKE)
 
     fun or(): QueryBuilder {
         whereCombinds.add(OR)

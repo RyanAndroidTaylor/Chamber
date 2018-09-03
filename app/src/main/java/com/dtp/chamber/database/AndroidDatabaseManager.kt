@@ -12,9 +12,7 @@ import com.dtp.DatabaseManager
 
 class AndroidDatabaseManager(private val openHelper: SQLiteOpenHelper) : DatabaseManager {
 
-    override fun beginTransaction(): Database {
-        return AndroidDatabase(openHelper.writableDatabase)
-    }
+    override fun beginTransaction(): Database = AndroidDatabase(openHelper.writableDatabase)
 
     override fun endTransaction(): Boolean {
         openHelper.close()
@@ -22,7 +20,5 @@ class AndroidDatabaseManager(private val openHelper: SQLiteOpenHelper) : Databas
         return true
     }
 
-    override fun createInDataStore(): DataStoreIn {
-        return AndroidDataStoreIn()
-    }
+    override fun createInDataStore(): DataStoreIn = AndroidDataStoreIn()
 }
